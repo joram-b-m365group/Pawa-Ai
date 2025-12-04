@@ -1,0 +1,226 @@
+{
+  "name": "pawa-ai",
+  "displayName": "Pawa AI - FREE 2M Token Context",
+  "description": "AI coding assistant with 2 MILLION token context (10x Claude!) - 100% FREE. Chat, generate, refactor code with Gemini & Llama.",
+  "version": "2.0.0",
+  "publisher": "pawa-ai",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pawa-ai/vscode-extension"
+  },
+  "bugs": {
+    "url": "https://github.com/pawa-ai/vscode-extension/issues"
+  },
+  "homepage": "https://github.com/pawa-ai/vscode-extension#readme",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Machine Learning",
+    "Snippets",
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "assistant",
+    "code-generation",
+    "copilot",
+    "productivity"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "pawa-ai.openChat",
+        "title": "Open Pawa AI Chat",
+        "category": "Pawa AI",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "pawa-ai.generateCode",
+        "title": "Generate Code with AI",
+        "category": "Pawa AI"
+      },
+      {
+        "command": "pawa-ai.explainCode",
+        "title": "Explain Selected Code",
+        "category": "Pawa AI"
+      },
+      {
+        "command": "pawa-ai.refactorCode",
+        "title": "Refactor Selected Code",
+        "category": "Pawa AI"
+      },
+      {
+        "command": "pawa-ai.fixBug",
+        "title": "Fix Bug in Selected Code",
+        "category": "Pawa AI"
+      },
+      {
+        "command": "pawa-ai.addComments",
+        "title": "Add Comments to Code",
+        "category": "Pawa AI"
+      },
+      {
+        "command": "pawa-ai.generateTests",
+        "title": "Generate Unit Tests",
+        "category": "Pawa AI"
+      },
+      {
+        "command": "pawa-ai.clearHistory",
+        "title": "Clear Chat History",
+        "category": "Pawa AI"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "pawa-ai-sidebar",
+          "title": "Pawa AI",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "pawa-ai-sidebar": [
+        {
+          "type": "webview",
+          "id": "pawa-ai.chatView",
+          "name": "Chat",
+          "icon": "$(comment-discussion)",
+          "contextualTitle": "Pawa AI Chat"
+        }
+      ]
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "submenu": "pawa-ai.contextMenu",
+          "group": "navigation"
+        }
+      ],
+      "pawa-ai.contextMenu": [
+        {
+          "command": "pawa-ai.explainCode",
+          "group": "1_pawa@1"
+        },
+        {
+          "command": "pawa-ai.refactorCode",
+          "group": "1_pawa@2"
+        },
+        {
+          "command": "pawa-ai.fixBug",
+          "group": "1_pawa@3"
+        },
+        {
+          "command": "pawa-ai.addComments",
+          "group": "1_pawa@4"
+        },
+        {
+          "command": "pawa-ai.generateTests",
+          "group": "1_pawa@5"
+        }
+      ]
+    },
+    "submenus": [
+      {
+        "id": "pawa-ai.contextMenu",
+        "label": "Pawa AI"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "pawa-ai.openChat",
+        "key": "ctrl+shift+a",
+        "mac": "cmd+shift+a"
+      },
+      {
+        "command": "pawa-ai.generateCode",
+        "key": "ctrl+shift+g",
+        "mac": "cmd+shift+g"
+      }
+    ],
+    "configuration": {
+      "title": "Pawa AI",
+      "properties": {
+        "pawa-ai.apiUrl": {
+          "type": "string",
+          "default": "http://localhost:8000",
+          "description": "Pawa AI backend API URL"
+        },
+        "pawa-ai.model": {
+          "type": "string",
+          "default": "llama-3.3-70b-versatile",
+          "description": "AI model to use"
+        },
+        "pawa-ai.maxTokens": {
+          "type": "number",
+          "default": 4096,
+          "description": "Maximum tokens in AI response"
+        },
+        "pawa-ai.temperature": {
+          "type": "number",
+          "default": 0.7,
+          "minimum": 0,
+          "maximum": 2,
+          "description": "AI response temperature (0-2)"
+        },
+        "pawa-ai.autoContextLines": {
+          "type": "number",
+          "default": 50,
+          "description": "Number of context lines to include automatically"
+        },
+        "pawa-ai.showDiffBeforeApply": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show diff preview before applying changes"
+        },
+        "pawa-ai.useGemini": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable Gemini for 2M token context (FREE!)"
+        },
+        "pawa-ai.geminiModel": {
+          "type": "string",
+          "enum": [
+            "gemini-2.0-flash",
+            "gemini-2.5-flash",
+            "gemini-2.5-pro"
+          ],
+          "default": "gemini-2.0-flash",
+          "description": "Gemini model to use (2M token context)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.x",
+    "@types/vscode": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^6.x",
+    "@typescript-eslint/parser": "^6.x",
+    "eslint": "^8.x",
+    "typescript": "^5.x",
+    "@vscode/test-electron": "^2.3.x"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}

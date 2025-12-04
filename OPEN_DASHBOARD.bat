@@ -1,0 +1,3 @@
+@echo off
+echo Opening Genius AI Dashboard...
+start "" "C:\Users\Jorams\genius-ai\frontend\dashboard.html"

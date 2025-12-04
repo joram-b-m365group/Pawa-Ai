@@ -1,0 +1,3 @@
+# Requirements for the Point of Sale System
+sqlite3
+tkinter

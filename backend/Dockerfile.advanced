@@ -1,0 +1,22 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install only minimal dependencies
+RUN pip install --no-cache-dir \
+    fastapi==0.108.0 \
+    uvicorn[standard]==0.25.0 \
+    pydantic==2.5.0 \
+    pydantic-settings==2.1.0 \
+    python-dotenv==1.0.0 \
+    loguru==0.7.2 \
+    python-multipart
+
+# Copy advanced server
+COPY advanced_server.py .
+
+# Expose port
+EXPOSE 8000
+
+# Run the application
+CMD ["python", "advanced_server.py"]

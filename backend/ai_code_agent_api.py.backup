@@ -1,0 +1,216 @@
+"""
+AI Code Agent API
+Enables AI to interact with code projects using tool calling
+Similar to Claude Code's capabilities
+"""
+
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from typing import List, Dict, Optional, Any
+from groq import Groq
+import json
+from ai_agent_tools import AIAgentTools
+
+router = APIRouter(prefix="/ai-agent", tags=["AI Agent"])
+
+# Groq client
+groq_client = Groq(api_key="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")
+
+# Store active agent sessions
+agent_sessions: Dict[str, AIAgentTools] = {}
+
+AI_AGENT_SYSTEM_PROMPT = """You are Pawa AI Code Agent, an expert software engineer assistant.
+
+You have access to tools that let you interact with the codebase:
+- read_file: Read any file in the project
+- write_file: Create new files or overwrite existing ones
+- edit_file: Make precise edits using find-and-replace
+- search_files: Search for patterns across the codebase
+- list_files: List files in directories
+- run_command: Execute terminal commands (npm, git, python, etc.)
+- get_file_tree: Get the complete project structure
+
+IMPORTANT GUIDELINES:
+1. **Always read files before editing** - Understand the current state first
+2. **Use edit_file for small changes** - More reliable than rewriting entire files
+3. **Use write_file for new files or complete rewrites**
+4. **Search before making changes** - Find all relevant locations
+5. **Run tests after changes** - Verify nothing broke
+6. **Explain what you're doing** - Keep the user informed
+
+WORKFLOW EXAMPLE:
+1. User: "Add error handling to the login function"
+2. You: Use search_files to find login function
+3. You: Use read_file to understand current implementation
+4. You: Use edit_file to add try-catch blocks
+5. You: Use run_command to run tests
+6. You: Explain what changed and why
+
+Be proactive, thorough, and always verify your changes work."""
+
+
+class CodeChatRequest(BaseModel):
+    message: str
+    project_path: str
+    conversation_history: Optional[List[Dict[str, str]]] = []
+    session_id: Optional[str] = "default"
+
+
+class CodeChatResponse(BaseModel):
+    response: str
+    tool_calls: Optional[List[Dict[str, Any]]] = []
+    files_modified: Optional[List[str]] = []
+    context_summary: Optional[str] = None
+
+
+@router.post("/chat", response_model=CodeChatResponse)
+async def ai_agent_chat(request: CodeChatRequest):
+    """
+    AI agent chat with tool calling capabilities
+    The AI can read, write, edit files, run commands, etc.
+    """
+    try:
+        # Get or create agent session
+        if request.session_id not in agent_sessions:
+            agent_sessions[request.session_id] = AIAgentTools(project_root=request.project_path)
+
+        agent = agent_sessions[request.session_id]
+
+        # Build messages for AI
+        messages = [
+            {"role": "system", "content": AI_AGENT_SYSTEM_PROMPT}
+        ]
+
+        # Add conversation history
+        for msg in request.conversation_history[-10:]:  # Last 10 messages
+            messages.append(msg)
+
+        # Add current message with context
+        context_summary = agent.get_context_summary()
+        user_message = request.message
+        if context_summary != "No previous context":
+            user_message = f"[Context: {context_summary}]\n\n{request.message}"
+
+        messages.append({
+            "role": "user",
+            "content": user_message
+        })
+
+        # Get available tools
+        tools = agent.get_available_tools()
+
+        # Call AI with tool calling enabled
+        print(f"🤖 AI Agent processing: {request.message}")
+
+        response = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages,
+            tools=tools,
+            tool_choice="auto",
+            temperature=0.7,
+            max_tokens=8000
+        )
+
+        assistant_message = response.choices[0].message
+        tool_calls_made = []
+        tool_results = []
+
+        # Execute tool calls if any
+        if assistant_message.tool_calls:
+            print(f"🔧 AI requested {len(assistant_message.tool_calls)} tool calls")
+
+            for tool_call in assistant_message.tool_calls:
+                tool_name = tool_call.function.name
+                tool_args = json.loads(tool_call.function.arguments)
+
+                print(f"   - {tool_name}({json.dumps(tool_args, indent=2)[:100]}...)")
+
+                # Execute tool
+                result = agent.execute_tool(tool_name, tool_args)
+                tool_calls_made.append({
+                    "tool": tool_name,
+                    "arguments": tool_args,
+                    "result": result
+                })
+
+                # Add tool result to conversation
+                tool_results.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "name": tool_name,
+                    "content": json.dumps(result)
+                })
+
+            # Get AI's final response after tool calls
+            messages.append({
+                "role": "assistant",
+                "content": assistant_message.content or "",
+                "tool_calls": [
+                    {
+                        "id": tc.id,
+                        "type": "function",
+                        "function": {
+                            "name": tc.function.name,
+                            "arguments": tc.function.arguments
+                        }
+                    }
+                    for tc in assistant_message.tool_calls
+                ]
+            })
+
+            messages.extend(tool_results)
+
+            # Get final response
+            final_response = groq_client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=messages,
+                temperature=0.7,
+                max_tokens=4000
+            )
+
+            final_text = final_response.choices[0].message.content
+
+        else:
+            # No tool calls, just return the response
+            final_text = assistant_message.content
+
+        print(f"✅ AI Agent completed")
+
+        return CodeChatResponse(
+            response=final_text,
+            tool_calls=tool_calls_made,
+            files_modified=list(set(agent.conversation_context["files_modified"])),
+            context_summary=agent.get_context_summary()
+        )
+
+    except Exception as e:
+        import traceback
+        print(f"❌ Error: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/reset-session")
+async def reset_session(session_id: str = "default"):
+    """Reset an agent session"""
+    if session_id in agent_sessions:
+        del agent_sessions[session_id]
+    return {"message": f"Session {session_id} reset"}
+
+
+@router.get("/available-tools")
+async def get_available_tools():
+    """Get list of available tools"""
+    agent = AIAgentTools()
+    return {"tools": agent.get_available_tools()}
+
+
+@router.post("/execute-tool")
+async def execute_tool_directly(
+    project_path: str,
+    tool_name: str,
+    arguments: Dict[str, Any]
+):
+    """Execute a tool directly (for testing)"""
+    agent = AIAgentTools(project_root=project_path)
+    result = agent.execute_tool(tool_name, arguments)
+    return result

@@ -1,0 +1,44 @@
+# Core FastAPI and Server
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.10.0
+python-multipart>=0.0.20
+
+# Web Browsing (FEATURE: Real-time Information)
+aiohttp>=3.11.0
+beautifulsoup4>=4.12.3
+lxml>=5.3.0
+requests>=2.32.3
+
+# Data Analysis (FEATURE: CSV, Excel Analysis)
+pandas>=2.2.3
+numpy>=2.2.0
+matplotlib>=3.9.2
+seaborn>=0.13.2
+plotly>=5.24.1
+scipy>=1.14.1
+
+# Vector Database - Semantic Memory (FEATURE: Smart Search)
+chromadb>=0.5.20
+sentence-transformers>=3.3.1
+
+# Image Processing
+Pillow>=11.0.0
+
+# Optional: Image Generation (Stable Diffusion)
+# Uncomment to enable image generation
+# diffusers>=0.31.0
+# transformers>=4.47.0
+# accelerate>=1.2.0
+# torch>=2.5.0
+
+# Optional: Voice Interface
+# Uncomment to enable voice features
+# openai-whisper>=20240930
+# piper-tts>=1.2.0
+
+# Utilities
+python-dotenv>=1.0.0
+
+# AI APIs (FEATURE: 2M Token Context - FREE!)
+google-generativeai>=0.8.3

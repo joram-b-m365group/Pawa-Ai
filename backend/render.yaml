@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: pawa-ai-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn super_intelligent_endpoint:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GOOGLE_API_KEY
+        value: AIzaSyBzT0i4WjPexzHG-QR5RIARNLX0ZOjK8uM
+      - key: GROQ_API_KEY
+        value: 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
+      - key: PORT
+        value: 8000
+      - key: PYTHON_VERSION
+        value: 3.11.0
+    healthCheckPath: /health

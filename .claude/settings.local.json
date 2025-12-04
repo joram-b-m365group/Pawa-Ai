@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where railway:*)",
+      "Bash(npm install:*)",
+      "Bash(railway --version:*)",
+      "Bash(vsce --version:*)",
+      "Bash(railway login:*)",
+      "Bash(where:*)",
+      "Bash(git --version:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(pkill:*)",
+      "Bash(tar:*)",
+      "Bash(python -m uvicorn:*)",
+      "Bash(pip install:*)",
+      "Bash(git rm:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

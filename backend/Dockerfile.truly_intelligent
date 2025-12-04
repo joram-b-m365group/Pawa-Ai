@@ -1,0 +1,27 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install dependencies
+RUN pip install --no-cache-dir \
+    fastapi==0.108.0 \
+    uvicorn[standard]==0.25.0 \
+    pydantic==2.5.0 \
+    pydantic-settings==2.1.0 \
+    python-dotenv==1.0.0 \
+    python-multipart
+
+# Optional: Install AI libraries (will use fallback if not available)
+# Uncomment these if you want to use external AI APIs or local models:
+# RUN pip install --no-cache-dir anthropic openai
+# RUN pip install --no-cache-dir torch transformers --index-url https://download.pytorch.org/whl/cpu
+
+# Copy server file
+COPY truly_intelligent_server.py .
+COPY .env.intelligence .env
+
+# Expose port
+EXPOSE 8000
+
+# Run server
+CMD ["python", "truly_intelligent_server.py"]

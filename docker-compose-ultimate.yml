@@ -1,0 +1,16 @@
+services:
+  ultimate-ai:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.ultimate-fast
+    container_name: genius-ultimate-ai
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - MODEL_NAME=llama3.2
+    volumes:
+      - ./data:/app/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

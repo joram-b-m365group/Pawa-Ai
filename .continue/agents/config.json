@@ -1,0 +1,15 @@
+{
+  "models": {
+    "default": {
+      "provider": "ollama",
+      "model": "mistral:7b-instruct-q4_K_M"
+    },
+    "code": {
+      "provider": "ollama",
+      "model": "qwen3-coder:480b-cloud"
+    }
+  },
+  "defaultModel": "code",
+  "allowFileEdits": true,
+  "allowCommands": true
+}

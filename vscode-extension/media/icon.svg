@@ -1,0 +1,83 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with outer glow -->
+  <circle cx="64" cy="64" r="61" fill="url(#outerGlow)" opacity="0.3"/>
+
+  <!-- Main lightning bolt - Power symbol -->
+  <path
+    d="M64 13 L83 45 L70 45 L90 77 L70 70 L77 115 L51 70 L38 77 L58 45 L45 45 Z"
+    fill="url(#mainGradient)"
+    stroke="url(#strokeGradient)"
+    stroke-width="2.5"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  />
+
+  <!-- Neural network nodes - AI representation -->
+  <circle cx="38" cy="38" r="4" fill="url(#nodeGradient)" opacity="0.95"/>
+  <circle cx="90" cy="38" r="4" fill="url(#nodeGradient)" opacity="0.95"/>
+  <circle cx="32" cy="64" r="4" fill="url(#nodeGradient)" opacity="0.95"/>
+  <circle cx="96" cy="64" r="4" fill="url(#nodeGradient)" opacity="0.95"/>
+  <circle cx="45" cy="90" r="4" fill="url(#nodeGradient)" opacity="0.95"/>
+  <circle cx="83" cy="90" r="4" fill="url(#nodeGradient)" opacity="0.95"/>
+
+  <!-- Connecting lines - neural network effect -->
+  <line x1="38" y1="38" x2="64" y2="51" stroke="url(#lineGradient)" stroke-width="1.5" opacity="0.35"/>
+  <line x1="90" y1="38" x2="64" y2="51" stroke="url(#lineGradient)" stroke-width="1.5" opacity="0.35"/>
+  <line x1="32" y1="64" x2="64" y2="64" stroke="url(#lineGradient)" stroke-width="1.5" opacity="0.35"/>
+  <line x1="96" y1="64" x2="64" y2="64" stroke="url(#lineGradient)" stroke-width="1.5" opacity="0.35"/>
+  <line x1="45" y1="90" x2="64" y2="77" stroke="url(#lineGradient)" stroke-width="1.5" opacity="0.35"/>
+  <line x1="83" y1="90" x2="64" y2="77" stroke="url(#lineGradient)" stroke-width="1.5" opacity="0.35"/>
+
+  <!-- Center power core -->
+  <circle cx="64" cy="64" r="10" fill="url(#coreGradient)" opacity="0.85"/>
+  <circle cx="64" cy="64" r="6" fill="url(#coreInner)" opacity="0.95"/>
+
+  <!-- Gradient definitions -->
+  <defs>
+    <!-- Outer glow gradient -->
+    <radialGradient id="outerGlow" cx="50%" cy="50%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="50%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </radialGradient>
+
+    <!-- Main lightning bolt gradient -->
+    <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="50%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#f472b6"/>
+    </linearGradient>
+
+    <!-- Stroke gradient -->
+    <linearGradient id="strokeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+
+    <!-- Node gradient -->
+    <radialGradient id="nodeGradient">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </radialGradient>
+
+    <!-- Line gradient -->
+    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+
+    <!-- Core gradient -->
+    <radialGradient id="coreGradient">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </radialGradient>
+
+    <!-- Core inner gradient -->
+    <radialGradient id="coreInner">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#fcd34d"/>
+    </radialGradient>
+  </defs>
+</svg>

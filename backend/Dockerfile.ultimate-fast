@@ -1,0 +1,26 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install only essential dependencies (NO build-essential to save time)
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install Python dependencies (use pre-built wheels, no compilation)
+RUN pip install --no-cache-dir --only-binary=:all: -r requirements.txt || pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Create data directory for memory
+RUN mkdir -p data/training
+
+# Expose port
+EXPOSE 8000
+
+# Run the ultimate server
+CMD ["python", "ultimate_server.py"]
