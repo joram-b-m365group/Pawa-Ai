@@ -276,7 +276,8 @@ export default function EnhancedChatInterface({ conversationId }: ChatInterfaceP
           content: msg.content
         })) || []
 
-        const response = await fetch('http://localhost:8000/chat', {
+        const API_URL = import.meta.env.VITE_API_URL || 'https://pawa-backend.onrender.com';
+        const response = await fetch(`${API_URL}/gemini/chat`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
