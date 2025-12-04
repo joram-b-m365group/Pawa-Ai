@@ -447,11 +447,12 @@ async def multi_model_ensemble(prompt: str, context: str = "") -> Dict[str, any]
             raise Exception("All models failed to respond")
 
         # Synthesize the best response using the primary model
+        expert_responses = "\n".join([f"EXPERT {i+1} ({r['model']}):\n{r['response']}\n" for i, r in enumerate(responses)])
         synthesis_prompt = f"""You have received {len(responses)} expert responses to the question: "{prompt}"
 
 EXPERT RESPONSES:
 
-{chr(10).join([f"EXPERT {i+1} ({r['model']}):\n{r['response']}\n" for i, r in enumerate(responses)])}
+{expert_responses}
 
 YOUR TASK:
 As a meta-intelligence system, synthesize these responses into one SUPERIOR answer that:
