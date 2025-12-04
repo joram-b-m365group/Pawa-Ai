@@ -244,7 +244,7 @@ app.add_middleware(
 )
 
 # Groq client
-groq_client = Groq(api_key="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")
+groq_client = Groq(api_key=os.getenv("GROQ_API_KEY", ""))
 
 # Initialize RAG system
 rag_system = None
