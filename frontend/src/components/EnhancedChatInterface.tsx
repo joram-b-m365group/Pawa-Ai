@@ -151,7 +151,8 @@ export default function EnhancedChatInterface({ conversationId }: ChatInterfaceP
 
           toast.loading('Transcribing audio...', { id: 'transcribe' })
 
-          const response = await fetch('http://localhost:8000/transcribe', {
+          const API_URL = import.meta.env.VITE_API_URL || 'https://pawa-backend.onrender.com';
+          const response = await fetch(`${API_URL}/transcribe`, {
             method: 'POST',
             body: formData
           })
@@ -217,14 +218,15 @@ export default function EnhancedChatInterface({ conversationId }: ChatInterfaceP
         const isImage = selectedFile.type.startsWith('image/')
 
         if (isImage) {
-          // Use Vision API for images
+          // Use upload endpoint for images (has vision analysis built-in)
           const formData = new FormData()
-          formData.append('image', selectedFile)
+          formData.append('file', selectedFile)
           formData.append('message', userInput)
 
           toast.loading('Analyzing image with vision AI...', { id: 'vision' })
 
-          const response = await fetch('http://localhost:8000/vision', {
+          const API_URL = import.meta.env.VITE_API_URL || 'https://pawa-backend.onrender.com';
+          const response = await fetch(`${API_URL}/upload`, {
             method: 'POST',
             body: formData,
           })
@@ -248,7 +250,8 @@ export default function EnhancedChatInterface({ conversationId }: ChatInterfaceP
           formData.append('file', selectedFile)
           formData.append('message', userInput)
 
-          const response = await fetch('http://localhost:8000/upload', {
+          const API_URL = import.meta.env.VITE_API_URL || 'https://pawa-backend.onrender.com';
+          const response = await fetch(`${API_URL}/upload`, {
             method: 'POST',
             body: formData,
           })
