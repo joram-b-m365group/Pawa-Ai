@@ -55,72 +55,144 @@ async def gemini_chat(request: GeminiChatRequest):
     """
     Chat with Google Gemini (2 MILLION token context - FREE!)
 
+    Automatically falls back to Groq if Gemini quota exceeded.
+
     Available Models:
+    - gemini-2.0-flash: 1M tokens, fast and reliable
     - gemini-1.5-pro-latest: 2M tokens context, best quality
     - gemini-1.5-flash-latest: 1M tokens, faster
-    - gemini-1.0-pro: 32K tokens, fastest
     """
+
+    # Try multiple models in order if quota exceeded
+    models_to_try = [
+        request.model,  # User's requested model
+        "gemini-1.5-flash",  # Fallback 1
+        "gemini-1.5-pro",  # Fallback 2
+    ]
+
+    last_error = None
+
+    for model_name in models_to_try:
+        try:
+            configure_gemini()
+
+            # Initialize model
+            generation_config = {
+                "temperature": request.temperature,
+                "top_p": 0.95,
+                "top_k": 64,
+                "max_output_tokens": 8192,
+            }
+
+            safety_settings = [
+                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+            ]
+
+            model = genai.GenerativeModel(
+                model_name=model_name,
+                generation_config=generation_config,
+                safety_settings=safety_settings,
+                system_instruction=request.system_prompt or "You are Pawa AI, an intelligent coding assistant."
+            )
+
+            # Build conversation history
+            history = []
+            for msg in request.conversation_history:
+                history.append({
+                    "role": msg.role,
+                    "parts": [msg.content]
+                })
+
+            # Start chat
+            chat = model.start_chat(history=history)
+
+            # Send message
+            response = chat.send_message(request.message)
+
+            # Count tokens (approximate)
+            prompt_tokens = len(request.message.split()) * 1.3  # Rough estimate
+            completion_tokens = len(response.text.split()) * 1.3
+
+            return GeminiChatResponse(
+                response=response.text,
+                model=model_name,
+                usage={
+                    "prompt_tokens": int(prompt_tokens),
+                    "completion_tokens": int(completion_tokens),
+                    "total_tokens": int(prompt_tokens + completion_tokens)
+                },
+                timestamp=datetime.now().isoformat()
+            )
+
+        except Exception as e:
+            last_error = e
+            error_str = str(e).lower()
+
+            # Check if it's a quota error
+            if "quota" in error_str or "429" in error_str or "resource exhausted" in error_str:
+                print(f"⚠️ Model {model_name} quota exceeded, trying next model...")
+                continue
+
+            # If not a quota error, raise immediately
+            if "API_KEY" in str(e):
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Gemini API key error. Get free key from https://aistudio.google.com/. Error: {str(e)}"
+                )
+
+            # Other errors should try next model
+            print(f"⚠️ Model {model_name} failed: {str(e)}, trying next model...")
+            continue
+
+    # If all Gemini models failed, fall back to Groq
     try:
-        configure_gemini()
+        from groq import Groq
+        print("🔄 All Gemini models failed, falling back to Groq...")
 
-        # Initialize model
-        generation_config = {
-            "temperature": request.temperature,
-            "top_p": 0.95,
-            "top_k": 64,
-            "max_output_tokens": 8192,
-        }
+        groq_client = Groq(api_key=os.getenv("GROQ_API_KEY", ""))
 
-        safety_settings = [
-            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-        ]
+        # Build messages for Groq
+        messages = [{"role": "system", "content": request.system_prompt or "You are Pawa AI, an intelligent coding assistant."}]
 
-        model = genai.GenerativeModel(
-            model_name=request.model,
-            generation_config=generation_config,
-            safety_settings=safety_settings,
-            system_instruction=request.system_prompt or "You are Pawa AI, an intelligent coding assistant."
-        )
-
-        # Build conversation history
-        history = []
+        # Add conversation history
         for msg in request.conversation_history:
-            history.append({
-                "role": msg.role,
-                "parts": [msg.content]
+            messages.append({
+                "role": msg.role if msg.role in ["user", "assistant"] else "user",
+                "content": msg.content
             })
 
-        # Start chat
-        chat = model.start_chat(history=history)
+        # Add current message
+        messages.append({"role": "user", "content": request.message})
 
-        # Send message
-        response = chat.send_message(request.message)
+        completion = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages,
+            temperature=request.temperature,
+            max_tokens=8192,
+        )
 
-        # Count tokens (approximate)
-        prompt_tokens = len(request.message.split()) * 1.3  # Rough estimate
-        completion_tokens = len(response.text.split()) * 1.3
+        response_text = completion.choices[0].message.content
 
         return GeminiChatResponse(
-            response=response.text,
-            model=request.model,
+            response=response_text,
+            model="groq-llama-3.3-70b (fallback)",
             usage={
-                "prompt_tokens": int(prompt_tokens),
-                "completion_tokens": int(completion_tokens),
-                "total_tokens": int(prompt_tokens + completion_tokens)
+                "prompt_tokens": completion.usage.prompt_tokens if hasattr(completion.usage, 'prompt_tokens') else 0,
+                "completion_tokens": completion.usage.completion_tokens if hasattr(completion.usage, 'completion_tokens') else 0,
+                "total_tokens": completion.usage.total_tokens if hasattr(completion.usage, 'total_tokens') else 0
             },
             timestamp=datetime.now().isoformat()
         )
 
-    except Exception as e:
-        if "API_KEY" in str(e):
-            raise HTTPException(
-                status_code=500,
-                detail=f"Gemini API key error. Get free key from https://aistudio.google.com/. Error: {str(e)}"
-            )
-        raise HTTPException(status_code=500, detail=f"Gemini API error: {str(e)}")
+    except Exception as groq_error:
+        # If Groq also fails, raise the original Gemini error
+        raise HTTPException(
+            status_code=500,
+            detail=f"All AI models failed. Gemini error: {str(last_error)}. Groq error: {str(groq_error)}"
+        )
 
 
 @router.post("/analyze-large-codebase")
