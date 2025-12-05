@@ -5,7 +5,11 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import VoiceCoding from './VoiceCoding'
 
+<<<<<<< HEAD
 const API_URL = import.meta.env.VITE_API_URL || 'https://pawa-backend.onrender.com'
+=======
+const API_URL = 'http://localhost:8000'
+>>>>>>> 78d29253 (Initial commit: Pawa AI with 2M token Gemini context)
 
 interface Message {
   role: 'user' | 'assistant'

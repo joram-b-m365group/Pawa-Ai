@@ -151,8 +151,12 @@ export default function EnhancedChatInterface({ conversationId }: ChatInterfaceP
 
           toast.loading('Transcribing audio...', { id: 'transcribe' })
 
+<<<<<<< HEAD
           const API_URL = import.meta.env.VITE_API_URL || 'https://pawa-backend.onrender.com';
           const response = await fetch(`${API_URL}/transcribe`, {
+=======
+          const response = await fetch('http://localhost:8000/transcribe', {
+>>>>>>> 78d29253 (Initial commit: Pawa AI with 2M token Gemini context)
             method: 'POST',
             body: formData
           })
@@ -218,15 +222,25 @@ export default function EnhancedChatInterface({ conversationId }: ChatInterfaceP
         const isImage = selectedFile.type.startsWith('image/')
 
         if (isImage) {
+<<<<<<< HEAD
           // Use upload endpoint for images (has vision analysis built-in)
           const formData = new FormData()
           formData.append('file', selectedFile)
+=======
+          // Use Vision API for images
+          const formData = new FormData()
+          formData.append('image', selectedFile)
+>>>>>>> 78d29253 (Initial commit: Pawa AI with 2M token Gemini context)
           formData.append('message', userInput)
 
           toast.loading('Analyzing image with vision AI...', { id: 'vision' })
 
+<<<<<<< HEAD
           const API_URL = import.meta.env.VITE_API_URL || 'https://pawa-backend.onrender.com';
           const response = await fetch(`${API_URL}/upload`, {
+=======
+          const response = await fetch('http://localhost:8000/vision', {
+>>>>>>> 78d29253 (Initial commit: Pawa AI with 2M token Gemini context)
             method: 'POST',
             body: formData,
           })
@@ -250,8 +264,12 @@ export default function EnhancedChatInterface({ conversationId }: ChatInterfaceP
           formData.append('file', selectedFile)
           formData.append('message', userInput)
 
+<<<<<<< HEAD
           const API_URL = import.meta.env.VITE_API_URL || 'https://pawa-backend.onrender.com';
           const response = await fetch(`${API_URL}/upload`, {
+=======
+          const response = await fetch('http://localhost:8000/upload', {
+>>>>>>> 78d29253 (Initial commit: Pawa AI with 2M token Gemini context)
             method: 'POST',
             body: formData,
           })
@@ -279,8 +297,12 @@ export default function EnhancedChatInterface({ conversationId }: ChatInterfaceP
           content: msg.content
         })) || []
 
+<<<<<<< HEAD
         const API_URL = import.meta.env.VITE_API_URL || 'https://pawa-backend.onrender.com';
         const response = await fetch(`${API_URL}/gemini/chat`, {
+=======
+        const response = await fetch('http://localhost:8000/chat', {
+>>>>>>> 78d29253 (Initial commit: Pawa AI with 2M token Gemini context)
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

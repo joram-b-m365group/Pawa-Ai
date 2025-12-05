@@ -11,12 +11,16 @@
       "Bash(git init:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
+<<<<<<< HEAD
       "Bash(git config:*)",
       "Bash(pkill:*)",
       "Bash(tar:*)",
       "Bash(python -m uvicorn:*)",
       "Bash(pip install:*)",
       "Bash(git rm:*)"
+=======
+      "Bash(git config:*)"
+>>>>>>> 78d29253 (Initial commit: Pawa AI with 2M token Gemini context)
     ],
     "deny": [],
     "ask": []

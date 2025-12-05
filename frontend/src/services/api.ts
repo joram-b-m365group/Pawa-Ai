@@ -1,6 +1,10 @@
 import axios from 'axios'
 
+<<<<<<< HEAD
 const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL || 'https://pawa-backend.onrender.com'
+=======
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+>>>>>>> 78d29253 (Initial commit: Pawa AI with 2M token Gemini context)
 
 const api = axios.create({
   baseURL: API_BASE_URL,
