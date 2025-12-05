@@ -20,11 +20,7 @@ interface AuthStore {
   setLoading: (loading: boolean) => void
 }
 
-<<<<<<< HEAD
 const API_URL = import.meta.env.VITE_API_URL || 'https://pawa-backend.onrender.com'
-=======
-const API_URL = 'http://localhost:8000'
->>>>>>> 78d29253 (Initial commit: Pawa AI with 2M token Gemini context)
 
 export const useAuthStore = create<AuthStore>()(
   persist(

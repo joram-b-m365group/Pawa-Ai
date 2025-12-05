@@ -12,11 +12,7 @@ import { useCodeStore } from './store/codeStore'
 import { Crown, MessageSquare, Code2, FolderKanban } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-<<<<<<< HEAD
 const API_URL = import.meta.env.VITE_API_URL || 'https://pawa-backend.onrender.com'
-=======
-const API_URL = 'http://localhost:8001'
->>>>>>> 78d29253 (Initial commit: Pawa AI with 2M token Gemini context)
 
 function App() {
   const [showLanding, setShowLanding] = useState(true)
