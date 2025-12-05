@@ -9,6 +9,10 @@ from typing import List, Optional, Dict, Any
 import os
 import google.generativeai as genai
 from datetime import datetime
+import aiohttp
+import asyncio
+from bs4 import BeautifulSoup
+import re
 
 router = APIRouter(prefix="/gemini", tags=["gemini"])
 
@@ -50,6 +54,54 @@ class GeminiChatResponse(BaseModel):
     timestamp: str
 
 
+async def search_web(query: str) -> str:
+    """
+    Search the web for current information using DuckDuckGo
+    """
+    try:
+        # Use DuckDuckGo Instant Answer API (free, no key needed)
+        search_url = f"https://api.duckduckgo.com/?q={query.replace(' ', '+')}&format=json"
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(search_url, timeout=aiohttp.ClientTimeout(total=5)) as response:
+                if response.status == 200:
+                    data = await response.json()
+
+                    # Extract relevant information
+                    results = []
+
+                    # Abstract (main answer)
+                    if data.get('Abstract'):
+                        results.append(f"**Answer**: {data['Abstract']}")
+
+                    # Related topics
+                    if data.get('RelatedTopics'):
+                        for topic in data['RelatedTopics'][:3]:
+                            if isinstance(topic, dict) and topic.get('Text'):
+                                results.append(f"- {topic['Text']}")
+
+                    if results:
+                        return "\n\n".join(results)
+
+        return "No current information found for this query."
+    except Exception as e:
+        return f"Unable to fetch current information: {str(e)}"
+
+
+async def detect_current_info_needed(message: str) -> bool:
+    """
+    Detect if the question requires current/real-time information
+    """
+    current_keywords = [
+        'current', 'now', 'today', 'latest', 'recent', 'who is', 'richest',
+        'president', '2024', '2025', 'this year', 'current year',
+        'what happened', 'news', 'stock price', 'weather'
+    ]
+
+    message_lower = message.lower()
+    return any(keyword in message_lower for keyword in current_keywords)
+
+
 @router.post("/chat", response_model=GeminiChatResponse)
 async def gemini_chat(request: GeminiChatRequest):
     """
@@ -62,6 +114,16 @@ async def gemini_chat(request: GeminiChatRequest):
     - gemini-1.5-pro-latest: 2M tokens context, best quality
     - gemini-1.5-flash-latest: 1M tokens, faster
     """
+
+    # Check if current information is needed
+    needs_current_info = await detect_current_info_needed(request.message)
+
+    # If current info needed, search the web first
+    web_context = ""
+    if needs_current_info:
+        print(f"🔍 Detected need for current information, searching web...")
+        web_context = await search_web(request.message)
+        print(f"📊 Web search results: {web_context[:200]}...")
 
     # Try multiple models in order if quota exceeded
     models_to_try = [
@@ -109,8 +171,18 @@ async def gemini_chat(request: GeminiChatRequest):
             # Start chat
             chat = model.start_chat(history=history)
 
+            # Prepare message with web context if available
+            enhanced_message = request.message
+            if web_context:
+                enhanced_message = f"""**CURRENT WEB INFORMATION (As of {datetime.now().strftime('%B %Y')})**:
+{web_context}
+
+**USER QUESTION**: {request.message}
+
+Answer the question using the current information provided above. Be specific with dates and facts."""
+
             # Send message
-            response = chat.send_message(request.message)
+            response = chat.send_message(enhanced_message)
 
             # Count tokens (approximate)
             prompt_tokens = len(request.message.split()) * 1.3  # Rough estimate
@@ -164,8 +236,17 @@ async def gemini_chat(request: GeminiChatRequest):
                 "content": msg.content
             })
 
-        # Add current message
-        messages.append({"role": "user", "content": request.message})
+        # Add current message (with web context if available)
+        enhanced_message = request.message
+        if web_context:
+            enhanced_message = f"""**CURRENT WEB INFORMATION (As of {datetime.now().strftime('%B %Y')})**:
+{web_context}
+
+**USER QUESTION**: {request.message}
+
+Answer the question using the current information provided above. Be specific with dates and facts."""
+
+        messages.append({"role": "user", "content": enhanced_message})
 
         completion = groq_client.chat.completions.create(
             model="llama-3.3-70b-versatile",
