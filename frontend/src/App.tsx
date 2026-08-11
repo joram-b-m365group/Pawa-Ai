@@ -215,17 +215,17 @@ function App() {
         />
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           {/* Glassmorphism Header */}
-          <header className="backdrop-blur-xl bg-gray-900/50 border-b border-gray-800/50 px-6 py-4 shadow-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+          <header className="backdrop-blur-xl bg-gray-900/50 border-b border-gray-800/50 px-3 sm:px-6 py-3 sm:py-4 shadow-lg">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <button
                   onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="lg:hidden p-2 hover:bg-white/10 rounded-xl transition-all"
+                  className="lg:hidden p-2 hover:bg-white/10 rounded-xl transition-all flex-shrink-0"
                 >
                   <svg
-                    className="w-6 h-6"
+                    className="w-5 h-5 sm:w-6 sm:h-6"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -240,76 +240,77 @@ function App() {
                 </button>
 
                 {/* Logo with Animation */}
-                <div className="flex items-center gap-3 cursor-pointer" onClick={() => setShowLanding(true)}>
-                  <div className="relative">
-                    <PawaIcon size={40} />
+                <div className="flex items-center gap-2 sm:gap-3 cursor-pointer min-w-0" onClick={() => setShowLanding(true)}>
+                  <div className="relative flex-shrink-0">
+                    <PawaIcon size={28} />
                     <div className="absolute inset-0 blur-xl opacity-50 animate-pulse">
-                      <PawaIcon size={40} />
+                      <PawaIcon size={28} />
                     </div>
                   </div>
-                  <h1 className="text-3xl font-black bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  <h1 className="text-lg sm:text-2xl md:text-3xl font-black bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent truncate">
                     Pawa AI
                   </h1>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                {/* Projects Button */}
+              <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+                {/* Projects Button - icon only on mobile */}
                 <button
                   onClick={() => setShowProjectManager(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 border border-gray-700 hover:border-purple-500/50 rounded-xl transition-all text-gray-300 hover:text-white"
+                  className="flex items-center gap-2 px-2.5 sm:px-4 py-2 bg-gray-800/50 border border-gray-700 hover:border-purple-500/50 rounded-xl transition-all text-gray-300 hover:text-white"
                   title="Open Projects (Ctrl+Shift+P)"
                 >
                   <FolderKanban className="w-4 h-4" />
-                  Projects
+                  <span className="hidden sm:inline">Projects</span>
                 </button>
 
-                {/* View Switcher */}
+                {/* View Switcher - icon only on mobile */}
                 <div className="flex items-center gap-1 bg-gray-800/50 border border-gray-700 rounded-xl p-1">
                   <button
                     onClick={() => setActiveView('chat')}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                    className={`flex items-center gap-2 px-2.5 sm:px-4 py-2 rounded-lg transition-all ${
                       activeView === 'chat'
                         ? 'bg-blue-600 text-white'
                         : 'text-gray-400 hover:text-white'
                     }`}
                   >
                     <MessageSquare className="w-4 h-4" />
-                    Chat
+                    <span className="hidden sm:inline">Chat</span>
                   </button>
                   <button
                     onClick={() => setActiveView('code')}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                    className={`flex items-center gap-2 px-2.5 sm:px-4 py-2 rounded-lg transition-all ${
                       activeView === 'code'
                         ? 'bg-purple-600 text-white'
                         : 'text-gray-400 hover:text-white'
                     }`}
                   >
                     <Code2 className="w-4 h-4" />
-                    Code
+                    <span className="hidden sm:inline">Code</span>
                   </button>
                 </div>
-                {/* Plan Badge */}
+
+                {/* Plan Badge - hidden on mobile */}
                 {userPlan !== 'free' && (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-xl">
+                  <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-xl">
                     <Crown className="w-4 h-4 text-yellow-400" />
                     <span className="text-sm font-semibold text-yellow-400 capitalize">{userPlan}</span>
                   </div>
                 )}
 
-                {/* Upgrade Button */}
+                {/* Upgrade Button - icon only on mobile */}
                 {userPlan === 'free' && (
                   <button
                     onClick={() => setPricingOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 rounded-xl font-semibold transition-all shadow-lg shadow-purple-500/30"
+                    className="flex items-center gap-2 px-2.5 sm:px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 rounded-xl font-semibold transition-all shadow-lg shadow-purple-500/30"
                   >
                     <Crown className="w-4 h-4" />
-                    Upgrade
+                    <span className="hidden sm:inline">Upgrade</span>
                   </button>
                 )}
 
-                {/* Status Indicator */}
-                <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10 border border-green-500/30 text-green-400 rounded-xl text-sm backdrop-blur-sm">
+                {/* Status Indicator - hidden on small screens */}
+                <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-green-500/10 border border-green-500/30 text-green-400 rounded-xl text-sm backdrop-blur-sm">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                   Online
                 </div>
@@ -354,7 +355,7 @@ function App() {
 
       {/* New Project Modal */}
       {showNewProject && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4">
           <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md border border-gray-700">
             <h3 className="text-xl font-bold mb-4">Create New Project</h3>
             <input
