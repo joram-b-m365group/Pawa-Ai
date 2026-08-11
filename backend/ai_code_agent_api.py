@@ -8,17 +8,14 @@ from pydantic import BaseModel
 from typing import List, Dict, Optional, Any
 from groq import Groq
 import json
+import os
 import re
 from ai_agent_tools import AIAgentTools
 
 router = APIRouter(prefix="/ai-agent", tags=["AI Agent"])
 
 # Groq client
-<<<<<<< HEAD
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY", ""))
-=======
-groq_client = Groq(api_key="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")
->>>>>>> 78d29253 (Initial commit: Pawa AI with 2M token Gemini context)
 
 # Store active agent sessions
 agent_sessions: Dict[str, AIAgentTools] = {}
